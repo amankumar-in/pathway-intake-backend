@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const puppeteer = require("puppeteer");
 
 // Load environment variables
 dotenv.config();
