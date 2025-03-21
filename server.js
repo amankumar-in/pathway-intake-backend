@@ -43,7 +43,14 @@ app.get("/test-puppeteer-path", (req, res) => {
   console.log("Test Puppeteer path:", path);
   res.send(`Puppeteer executable path: ${path}`);
 });
-
+// check chrome
+app.get("/check-chrome", (req, res) => {
+  const execPath = puppeteer.executablePath();
+  const exists = fs.existsSync(execPath);
+  console.log("Puppeteer executable path:", execPath);
+  console.log("File exists:", exists);
+  res.json({ path: execPath, exists });
+});
 // Error handler middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -53,14 +60,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// check chrome
-app.get("/check-chrome", (req, res) => {
-  const execPath = puppeteer.executablePath();
-  const exists = fs.existsSync(execPath);
-  console.log("Puppeteer executable path:", execPath);
-  console.log("File exists:", exists);
-  res.json({ path: execPath, exists });
-});
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
