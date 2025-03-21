@@ -54,6 +54,12 @@ function cleanupTempFiles() {
     });
   }
 }
+// test puppeteer path
+app.get("/test-puppeteer-path", (req, res) => {
+  const path = puppeteer.executablePath();
+  console.error("Test Puppeteer path:", path);
+  res.send(`Puppeteer executable path: ${path}`);
+});
 
 // Run cleanup every hour
 setInterval(cleanupTempFiles, 60 * 60 * 1000);
@@ -61,9 +67,9 @@ setInterval(cleanupTempFiles, 60 * 60 * 1000);
 // PDF generation endpoint
 app.post("/api/generate-pdf", async (req, res) => {
   let browser = null;
-console.log("PDF generation endpoint hit");
-// then log the executable path
-console.log("Puppeteer executable path:", puppeteer.executablePath());
+  console.log("PDF generation endpoint hit");
+  // then log the executable path
+  console.log("Puppeteer executable path:", puppeteer.executablePath());
   try {
     const { html, filename = "document.pdf" } = req.body;
 
