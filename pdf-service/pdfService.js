@@ -82,7 +82,7 @@ app.post("/api/generate-pdf", async (req, res) => {
         "--single-process",
         "--disable-gpu",
       ],
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      executablePath: "/usr/bin/google-chrome-stable",
     });
 
     const page = await browser.newPage();
