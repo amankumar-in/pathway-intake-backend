@@ -1,5 +1,6 @@
 const Document = require("../models/Document");
 const IntakeForm = require("../models/IntakeForm");
+const puppeteer = require("puppeteer");
 
 // @desc    Generate documents from intake form
 // @route   POST /api/v1/documents/generate/:intakeFormId
