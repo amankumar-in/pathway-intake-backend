@@ -68,6 +68,7 @@ app.post("/api/generate-pdf", async (req, res) => {
     if (!html) {
       return res.status(400).json({ error: "HTML content is required" });
     }
+    console.log("Puppeteer executable path:", puppeteer.executablePath());
 
     // Launch headless browser
     browser = await puppeteer.launch({
