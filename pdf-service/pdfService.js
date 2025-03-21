@@ -13,9 +13,12 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(
   cors({
-    origin: "http://localhost:3000", // Your frontend URL - change if needed
+    origin: [
+      "http://localhost:3000",
+      "https://pathway-intake-frontend.onrender.com",
+    ],
     methods: ["POST"],
-    allowedHeaders: ["Content-Type"],
+    allowedHeaders: ["Content-Type", "Authorization"], // Added Authorization header
   })
 );
 
@@ -73,7 +76,13 @@ app.post("/api/generate-pdf", async (req, res) => {
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
       ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     });
 
     const page = await browser.newPage();
