@@ -8,7 +8,7 @@ const IntakeFormSchema = new mongoose.Schema({
   },
   office: {
     type: String,
-    enum: ["Santa Maria", "Bakersfield", "Riverside", "SBR"],
+    enum: ["Santa Maria", "Bakersfield", "Riverside", "San Bernardino"],
     default: "Santa Maria",
   },
   dateSubmitted: {
