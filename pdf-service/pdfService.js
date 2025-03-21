@@ -70,38 +70,19 @@ app.post("/api/generate-pdf", async (req, res) => {
     }
 
     // Launch headless browser
-    // browser = await puppeteer.launch({
-    //   headless: true,
-    //   args: [
-    //     "--no-sandbox",
-    //     "--disable-setuid-sandbox",
-    //     "--disable-dev-shm-usage",
-    //     "--disable-accelerated-2d-canvas",
-    //     "--no-first-run",
-    //     "--no-zygote",
-    //     "--single-process",
-    //     "--disable-gpu",
-    //   ],
-    //   executablePath: "/usr/bin/google-chrome-stable",
-    // });
-
-    console.log(
-      "Environment PUPPETEER_EXECUTABLE_PATH:",
-      process.env.PUPPETEER_EXECUTABLE_PATH
-    );
-    console.log(
-      "Puppeteer default executable path:",
-      await puppeteer.executablePath()
-    );
-
     browser = await puppeteer.launch({
       headless: true,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
       ],
-      executablePath: "/usr/bin/google-chrome-stable", // Hardcoded path for Render
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     });
 
     const page = await browser.newPage();
