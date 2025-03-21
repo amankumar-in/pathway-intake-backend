@@ -48,3 +48,10 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// test path for puppeteer
+app.get("/test-puppeteer-path", (req, res) => {
+  const path = puppeteer.executablePath();
+  console.log("Test Puppeteer path:", path);
+  res.send(`Puppeteer executable path: ${path}`);
+});
