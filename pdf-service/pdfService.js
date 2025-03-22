@@ -91,7 +91,10 @@ app.post("/api/generate-pdf", async (req, res) => {
         "--single-process",
         "--disable-gpu",
       ],
-      // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      executablePath:
+        process.env.NODE_ENV === "production"
+          ? undefined // Use Render's configured path in production
+          : puppeteer.executablePath(), // Use system Chrome in development
     });
 
     const page = await browser.newPage();
