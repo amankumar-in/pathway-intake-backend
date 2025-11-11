@@ -232,6 +232,10 @@ const IntakeFormSchema = new mongoose.Schema({
     type: Map,
     of: String,
   },
+  signatureLabels: {
+    type: Map,
+    of: String,
+  },
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: "User",

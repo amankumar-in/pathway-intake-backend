@@ -221,6 +221,59 @@ exports.updateSignature = async (req, res, next) => {
   }
 };
 
+// @desc    Update signature label for an intake form
+// @route   PUT /api/intake-forms/:id/signature-label
+// @access  Private
+exports.updateSignatureLabel = async (req, res, next) => {
+  try {
+    const { signatureType, label } = req.body;
+
+    // Validate signature type
+    const validSignatureTypes = [
+      "childSignature",
+      "parentSignature",
+      "caseworkerSignature",
+      "supervisorSignature",
+      "agencyRepSignature",
+    ];
+
+    if (!validSignatureTypes.includes(signatureType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid signature type",
+      });
+    }
+
+    let intakeForm = await IntakeForm.findById(req.params.id);
+
+    if (!intakeForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Intake form not found",
+      });
+    }
+
+    // Update the signature label
+    const updateData = {
+      [`signatureLabels.${signatureType}`]: label,
+      updatedBy: req.user.id,
+      updatedAt: Date.now(),
+    };
+
+    intakeForm = await IntakeForm.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: intakeForm,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Add these controller functions to your intakeForm.js controller file
 
 /**

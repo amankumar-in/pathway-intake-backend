@@ -6,6 +6,7 @@ const {
   updateIntakeForm,
   deleteIntakeForm,
   updateSignature,
+  updateSignatureLabel,
   updateFormStatus,
   toggleFormArchive,
   bulkDeleteIntakeForms,
@@ -29,6 +30,7 @@ router
   .delete(deleteIntakeForm);
 
 router.route("/:id/signature").put(updateSignature);
+router.route("/:id/signature-label").put(updateSignatureLabel);
 // Routes for status and archive
 router.route("/:id/status").put(updateFormStatus);
 router.route("/:id/archive").put(toggleFormArchive);
