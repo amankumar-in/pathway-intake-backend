@@ -3,7 +3,6 @@
 set -o errexit
 
 npm install
-node seeder.js  # Run your seeder script
 
 # Store/pull Puppeteer cache with build cache
 if [[ ! -d $PUPPETEER_CACHE_DIR ]]; then 
