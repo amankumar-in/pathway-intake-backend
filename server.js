@@ -19,8 +19,31 @@ const pdfRoutes = require("./routes/pdf");
 // Create Express app
 const app = express();
 
-// Connect to database
-connectDB();
+// Connect to database and seed default admin
+const User = require("./models/User");
+
+const startServer = async () => {
+  await connectDB();
+
+  // Create default admin user if none exists
+  const adminExists = await User.findOne({ username: "admin" });
+  if (!adminExists) {
+    const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD;
+    if (!adminPassword) {
+      console.warn("WARNING: No ADMIN_DEFAULT_PASSWORD set in env. Skipping admin creation.");
+    } else {
+      await User.create({
+        username: "admin",
+        password: adminPassword,
+        name: "Admin",
+        role: "admin",
+      });
+      console.log("Default admin user created");
+    }
+  }
+};
+
+startServer();
 
 // Middleware
 app.use(cors());
