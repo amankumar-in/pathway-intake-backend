@@ -203,6 +203,12 @@ exports.generateDocuments = async (req, res, next) => {
         additionalCategories: [],
         template: "Checklist",
       },
+      {
+        title: "Client Personal Property",
+        category: "Intake Paperwork",
+        additionalCategories: [],
+        template: "Client Personal Property",
+      },
     ];
 
     // Create documents from templates
