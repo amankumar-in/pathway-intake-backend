@@ -53,7 +53,7 @@ exports.generateDocuments = async (req, res, next) => {
         template: "Agency to Agency Agreement",
       },
       {
-        title: "Agency to Foster Parent",
+        title: "Agency to Resource Parent",
         category: "Shelter Bed Documents",
         additionalCategories: ["In House Move", "Intake Paperwork"],
         template: "Agency to Foster Parent",
@@ -198,7 +198,7 @@ exports.generateDocuments = async (req, res, next) => {
         template: "Placement Application",
       },
       {
-        title: "Foster Parent Checklist",
+        title: "Resource Parent Checklist",
         category: "Intake Paperwork",
         additionalCategories: [],
         template: "Checklist",
