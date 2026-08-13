@@ -58,7 +58,6 @@ const IntakeFormSchema = new mongoose.Schema({
   // Client Information
   caseNumber: {
     type: String,
-    required: [true, "Case number is required"],
   },
   name: {
     type: String,

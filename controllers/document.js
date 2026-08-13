@@ -335,7 +335,7 @@ exports.updateDocument = async (req, res, next) => {
     const updateData = {
       formData: req.body.formData,
       updatedBy: req.user.id,
-      updatedAt: Date.now(),
+      updatedAt: new Date(),
     };
 
     document = await Document.findByIdAndUpdate(req.params.id, updateData, {
@@ -400,7 +400,7 @@ exports.updateDocumentSignature = async (req, res, next) => {
       {
         signatures: signatureObj,
         updatedBy: req.user.id,
-        updatedAt: Date.now(),
+        updatedAt: new Date(),
       },
       { new: true, runValidators: true }
     );
@@ -437,7 +437,7 @@ exports.deleteDocumentSignature = async (req, res, next) => {
 
       // Save the document
       document.updatedBy = req.user.id;
-      document.updatedAt = Date.now();
+      document.updatedAt = new Date();
       await document.save();
     }
 
@@ -573,7 +573,7 @@ exports.addStandaloneSignatures = async (req, res, next) => {
       {
         signatures: signatureObj,
         updatedBy: req.user.id,
-        updatedAt: Date.now(),
+        updatedAt: new Date(),
       },
       { new: true, runValidators: true }
     );

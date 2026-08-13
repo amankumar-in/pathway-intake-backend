@@ -115,7 +115,7 @@ exports.updateIntakeForm = async (req, res, next) => {
 
     // Add updatedBy and updatedAt
     req.body.updatedBy = req.user.id;
-    req.body.updatedAt = Date.now();
+    req.body.updatedAt = new Date();
 
     // Update the form
     intakeForm = await IntakeForm.findByIdAndUpdate(req.params.id, req.body, {
@@ -204,7 +204,7 @@ exports.updateSignature = async (req, res, next) => {
     const updateData = {
       [`signatures.${signatureType}`]: signatureData,
       updatedBy: req.user.id,
-      updatedAt: Date.now(),
+      updatedAt: new Date(),
     };
 
     intakeForm = await IntakeForm.findByIdAndUpdate(req.params.id, updateData, {
@@ -257,7 +257,7 @@ exports.updateSignatureLabel = async (req, res, next) => {
     const updateData = {
       [`signatureLabels.${signatureType}`]: label,
       updatedBy: req.user.id,
-      updatedAt: Date.now(),
+      updatedAt: new Date(),
     };
 
     intakeForm = await IntakeForm.findByIdAndUpdate(req.params.id, updateData, {
@@ -311,9 +311,9 @@ exports.updateFormStatus = async (req, res) => {
 
     // Update the form status and lastStatusUpdate
     form.status = status;
-    form.lastStatusUpdate = Date.now();
+    form.lastStatusUpdate = new Date();
     form.updatedBy = req.user.id;
-    form.updatedAt = Date.now();
+    form.updatedAt = new Date();
 
     await form.save();
 
@@ -359,17 +359,17 @@ exports.toggleFormArchive = async (req, res) => {
     // Update archive status
     form.archived = archived;
     form.updatedBy = req.user.id;
-    form.updatedAt = Date.now();
+    form.updatedAt = new Date();
 
     // If archiving, also update status to "Archived"
     if (archived) {
       form.status = "Archived";
-      form.lastStatusUpdate = Date.now();
+      form.lastStatusUpdate = new Date();
     } else {
       // If unarchiving and status is "Archived", reset to "In Progress"
       if (form.status === "Archived") {
         form.status = "In Progress";
-        form.lastStatusUpdate = Date.now();
+        form.lastStatusUpdate = new Date();
       }
     }
 
