@@ -5,6 +5,9 @@ const fs = require("fs");
 const path = require("path");
 const { PDFDocument } = require("pdf-lib");
 
+let activePdfJobs = 0;
+const MAX_CONCURRENT_PDF_JOBS = 2;
+
 // Create temp directory if it doesn't exist
 const tempDir = path.join(__dirname, "../temp");
 if (!fs.existsSync(tempDir)) {
@@ -54,6 +57,11 @@ exports.generatePDF = async (req, res) => {
         .json({ success: false, message: "HTML content is required" });
     }
 
+    if (activePdfJobs >= MAX_CONCURRENT_PDF_JOBS) {
+      return res.status(429).json({ success: false, message: "Server busy generating PDFs. Try again shortly." });
+    }
+    activePdfJobs++;
+
     // Launch headless browser
     browser = await puppeteer.launch({
       headless: true,
@@ -65,6 +73,15 @@ exports.generatePDF = async (req, res) => {
     });
 
     const page = await browser.newPage();
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      const url = req.url();
+      if (url.startsWith("file://") || url.includes("169.254")) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
 
     // Set content and wait for rendering
     await page.setContent(html, {
@@ -123,6 +140,7 @@ exports.generatePDF = async (req, res) => {
     if (browser) {
       await browser.close();
     }
+    activePdfJobs--;
   }
 };
 
@@ -144,6 +162,17 @@ exports.generateMultiplePDF = async (req, res) => {
         .json({ success: false, message: "HTML documents array is required" });
     }
 
+    if (htmlDocuments.length > 60) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Maximum of 60 documents allowed per request" });
+    }
+
+    if (activePdfJobs >= MAX_CONCURRENT_PDF_JOBS) {
+      return res.status(429).json({ success: false, message: "Server busy generating PDFs. Try again shortly." });
+    }
+    activePdfJobs++;
+
     // Launch headless browser
     browser = await puppeteer.launch({
       headless: true,
@@ -160,6 +189,16 @@ exports.generateMultiplePDF = async (req, res) => {
     for (let i = 0; i < htmlDocuments.length; i++) {
       const html = htmlDocuments[i];
       const page = await browser.newPage();
+      
+      await page.setRequestInterception(true);
+      page.on("request", (req) => {
+        const url = req.url();
+        if (url.startsWith("file://") || url.includes("169.254")) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
 
       // Set content and wait for rendering
       await page.setContent(html, {
@@ -251,6 +290,7 @@ exports.generateMultiplePDF = async (req, res) => {
         console.error(`Error deleting temp file ${file}:`, err);
       }
     });
+    activePdfJobs--;
   }
 };
 

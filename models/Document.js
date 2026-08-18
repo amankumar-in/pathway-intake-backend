@@ -72,6 +72,10 @@ const DocumentSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
   },
+  expiresAt: {
+    type: Date,
+    index: { expires: 0 },
+  },
 });
 
 module.exports = mongoose.model("Document", DocumentSchema);

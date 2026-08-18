@@ -19,6 +19,13 @@ exports.generateDocuments = async (req, res, next) => {
       });
     }
 
+    if (intakeForm.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to access this intake form",
+      });
+    }
+
     // Check if documents already exist for this intake form
     const existingDocuments = await Document.find({
       intakeForm: req.params.intakeFormId,
@@ -225,6 +232,7 @@ exports.generateDocuments = async (req, res, next) => {
         },
         intakeForm: intakeForm._id,
         createdBy: req.user.id,
+        expiresAt: intakeForm.expiresAt,
       });
     });
 
@@ -245,9 +253,11 @@ exports.generateDocuments = async (req, res, next) => {
 // @access  Private
 exports.getDocumentsByIntakeForm = async (req, res, next) => {
   try {
-    const documents = await Document.find({
-      intakeForm: req.params.intakeFormId,
-    });
+    let query = { intakeForm: req.params.intakeFormId };
+    if (req.user.role !== "admin") {
+      query.createdBy = req.user.id;
+    }
+    const documents = await Document.find(query);
 
     res.status(200).json({
       success: true,
@@ -275,6 +285,9 @@ exports.getDocumentsByCategory = async (req, res, next) => {
     // Add intakeForm filter if provided
     if (intakeFormId) {
       query.intakeForm = intakeFormId;
+    }
+    if (req.user.role !== "admin") {
+      query.createdBy = req.user.id;
     }
 
     const documents = await Document.find(query);
@@ -306,6 +319,10 @@ exports.getDocument = async (req, res, next) => {
       });
     }
 
+    if (document.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to access this document" });
+    }
+
     res.status(200).json({
       success: true,
       data: document,
@@ -327,6 +344,10 @@ exports.updateDocument = async (req, res, next) => {
         success: false,
         message: "Document not found",
       });
+    }
+
+    if (document.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this document" });
     }
 
     // Update the document with the new form data
@@ -371,6 +392,10 @@ exports.updateDocumentSignature = async (req, res, next) => {
         success: false,
         message: "Document not found",
       });
+    }
+
+    if (document.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this document" });
     }
 
     // Different approach to handle signatures
@@ -431,6 +456,10 @@ exports.deleteDocumentSignature = async (req, res, next) => {
       });
     }
 
+    if (document.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this document" });
+    }
+
     // Remove the signature if it exists
     if (document.signatures && document.signatures.has(type)) {
       document.signatures.delete(type);
@@ -486,6 +515,7 @@ exports.createStandaloneDocument = async (req, res, next) => {
       },
       intakeForm: null, // No intake form associated
       createdBy: req.user.id,
+      expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
     });
 
     res.status(201).json({
@@ -554,6 +584,10 @@ exports.addStandaloneSignatures = async (req, res, next) => {
         success: false,
         message: "Document not found",
       });
+    }
+
+    if (document.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this document" });
     }
 
     // Format signatures into the Map format used by the model

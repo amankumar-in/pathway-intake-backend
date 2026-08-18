@@ -54,6 +54,7 @@ exports.login = async (req, res, next) => {
     const user = await User.findOne({ username }).select("+password");
 
     if (!user) {
+      console.log(`[AUDIT] Failed login attempt for username: ${username}`);
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
@@ -64,6 +65,7 @@ exports.login = async (req, res, next) => {
     const isMatch = await user.matchPassword(password);
 
     if (!isMatch) {
+      console.log(`[AUDIT] Failed login attempt for username: ${username}`);
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
@@ -73,9 +75,17 @@ exports.login = async (req, res, next) => {
     // Generate token
     const token = user.getSignedJwtToken();
 
-    res.status(200).json({
+    console.log(`[AUDIT] Successful login for username: ${user.username}`);
+
+    const options = {
+      expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    };
+
+    res.status(200).cookie("token", token, options).json({
       success: true,
-      token,
       user: {
         id: user._id,
         username: user.username,
@@ -86,6 +96,24 @@ exports.login = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// @desc    Logout user / clear cookie
+// @route   GET /api/v1/auth/logout
+// @access  Public
+exports.logout = (req, res, next) => {
+  console.log(`[AUDIT] User logged out`);
+  res.cookie("token", "none", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  res.status(200).json({
+    success: true,
+    data: {},
+  });
 };
 
 // @desc    Get current logged in user
@@ -146,10 +174,10 @@ exports.updatePassword = async (req, res, next) => {
       });
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 12) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters",
+        message: "Password must be at least 12 characters",
       });
     }
 
@@ -169,6 +197,8 @@ exports.updatePassword = async (req, res, next) => {
     // Update password
     user.password = newPassword;
     await user.save();
+
+    console.log(`[AUDIT] Password updated for user ID: ${user._id}`);
 
     res.status(200).json({
       success: true,
@@ -194,10 +224,10 @@ exports.resetUserPassword = async (req, res, next) => {
       });
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 12) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters",
+        message: "Password must be at least 12 characters",
       });
     }
 
@@ -213,6 +243,8 @@ exports.resetUserPassword = async (req, res, next) => {
     // Update password
     user.password = newPassword;
     await user.save();
+
+    console.log(`[AUDIT] Password reset for user ID: ${user._id} by Admin ID: ${req.user.id}`);
 
     res.status(200).json({
       success: true,

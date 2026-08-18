@@ -1,7 +1,9 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const {
   register,
   login,
+  logout,
   getMe,
   getUsers,
   deleteUser,
@@ -15,8 +17,15 @@ const { protect, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { success: false, message: "Too many login attempts, please try again after 15 minutes." }
+});
+
 // Public routes
-router.post("/login", login);
+router.post("/login", loginLimiter, login);
+router.get("/logout", logout);
 
 // Protected routes
 router.get("/me", protect, getMe);

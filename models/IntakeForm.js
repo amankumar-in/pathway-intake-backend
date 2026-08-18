@@ -276,6 +276,11 @@ const IntakeFormSchema = new mongoose.Schema({
       enum: ["Intake Paperwork", "Shelter Bed Documents", "In House Move"],
     },
   ],
+  expiresAt: {
+    type: Date,
+    default: () => new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days
+    index: { expires: 0 },
+  },
 });
 
 module.exports = mongoose.model("IntakeForm", IntakeFormSchema);

@@ -200,6 +200,10 @@ exports.updateSignature = async (req, res, next) => {
       });
     }
 
+    if (intakeForm.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this intake form" });
+    }
+
     // Update the signature
     const updateData = {
       [`signatures.${signatureType}`]: signatureData,
@@ -251,6 +255,10 @@ exports.updateSignatureLabel = async (req, res, next) => {
         success: false,
         message: "Intake form not found",
       });
+    }
+
+    if (intakeForm.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this intake form" });
     }
 
     // Update the signature label
@@ -309,6 +317,10 @@ exports.updateFormStatus = async (req, res) => {
       });
     }
 
+    if (form.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this intake form" });
+    }
+
     // Update the form status and lastStatusUpdate
     form.status = status;
     form.lastStatusUpdate = new Date();
@@ -354,6 +366,10 @@ exports.toggleFormArchive = async (req, res) => {
         success: false,
         message: "Form not found",
       });
+    }
+
+    if (form.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this intake form" });
     }
 
     // Update archive status

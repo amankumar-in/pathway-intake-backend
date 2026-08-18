@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const helmet = require("helmet");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
+const cookieParser = require("cookie-parser");
 
 // Load environment variables
 dotenv.config();
@@ -46,40 +48,39 @@ const startServer = async () => {
 startServer();
 
 // Middleware
-app.use(cors());
-app.use(express.json({ limit: "50mb" })); // Increased limit for signatures
-app.use(express.urlencoded({ extended: true }));
-
+app.use(helmet());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 // Mount routers
+app.use("/api/v1/pdf", express.json({ limit: "50mb" }), pdfRoutes);
+app.use(express.json({ limit: "1mb" })); // Reduced global limit
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/intake-forms", intakeFormRoutes);
 app.use("/api/v1/documents", documentRoutes);
-app.use("/api/v1/pdf", pdfRoutes);
 
 // Base route
 app.get("/", (req, res) => {
   res.send("Pathway Foster Agency API is running");
 });
-// test path for puppeteer
-app.get("/test-puppeteer-path", (req, res) => {
-  const path = puppeteer.executablePath();
-  console.log("Test Puppeteer path:", path);
-  res.send(`Puppeteer executable path: ${path}`);
-});
-// check chrome
-app.get("/check-chrome", (req, res) => {
-  const execPath = puppeteer.executablePath();
-  const exists = fs.existsSync(execPath);
-  console.log("Puppeteer executable path:", execPath);
-  console.log("File exists:", exists);
-  res.json({ path: execPath, exists });
-});
+
 // Error handler middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,
-    error: err.message || "Server Error",
+    error: process.env.NODE_ENV === "production" ? "Server Error" : (err.message || "Server Error"),
   });
 });
 
